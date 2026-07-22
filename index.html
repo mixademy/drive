@@ -22,17 +22,19 @@
             transition: all 0.2s ease-in-out;
         }
 
+        /* Gördítősáv dizájn */
         ::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
+            height: 6px;
         }
 
         ::-webkit-scrollbar-track {
-            background: #1f2937;
+            background: transparent;
         }
 
         ::-webkit-scrollbar-thumb {
             background: #4b5563;
-            border-radius: 4px;
+            border-radius: 10px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
@@ -88,7 +90,6 @@
             transition: width 0.2s;
         }
 
-        /* Mobile Overlay for Sidebar */
         #mobile-overlay {
             display: none;
         }
@@ -134,7 +135,8 @@
                     <label class="block text-sm font-medium text-gray-400 mb-1">Jelszó</label>
                     <input type="password" id="login-password" required
                         class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-mixademy-500 text-white"
-                        placeholder="••••••••">
+                        placeholder="••••••••"
+                        onkeydown="if(event.key === 'Enter'){event.preventDefault(); document.getElementById('btn-login').click();}">
                 </div>
                 <p id="login-error" class="text-red-500 text-sm mb-4 text-center hidden"></p>
                 <button type="button" id="btn-login"
@@ -154,17 +156,16 @@
         <!-- Sidebar -->
         <aside id="drive-sidebar"
             class="w-64 bg-gray-800 border-r border-gray-700 flex flex-col absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-300 ease-in-out z-40">
-            <div class="h-16 flex items-center justify-between px-6 border-b border-gray-700">
+            <div class="h-16 flex items-center justify-between px-6 border-b border-gray-700 flex-shrink-0">
                 <div class="flex items-center">
                     <i class="fa-solid fa-cloud text-mixademy-500 text-2xl mr-3"></i>
                     <span class="text-xl font-bold tracking-wider">Mixademy<span
                             class="text-mixademy-500">Drive</span></span>
                 </div>
-                <!-- Mobile Close Btn -->
                 <button class="md:hidden text-gray-400 hover:text-white" onclick="toggleSidebar()"><i
                         class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <div class="p-4 space-y-3">
+            <div class="p-4 space-y-3 flex-shrink-0">
                 <button id="btn-upload-trigger"
                     class="w-full bg-mixademy-500 hover:bg-mixademy-600 text-white font-semibold py-3 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
                     <i class="fa-solid fa-file-arrow-up"></i> Fájl feltöltése
@@ -176,15 +177,25 @@
                     <i class="fa-solid fa-folder-plus"></i> Új mappa
                 </button>
             </div>
-            <nav class="flex-1 px-4 space-y-1 mt-4">
-                <a href="#" id="btn-nav-root"
-                    class="flex items-center gap-3 bg-gray-900 text-white px-3 py-2.5 rounded-lg transition-all border border-gray-700"
-                    onclick="if(window.innerWidth < 768) toggleSidebar();">
-                    <i class="fa-solid fa-hard-drive w-5 text-mixademy-500"></i> <span
-                        id="workspace-name-display">Meghajtó</span>
-                </a>
+
+            <!-- ÚJ MENÜ FA-STRUKTÚRÁVAL -->
+            <nav class="flex-1 px-2 mt-2 overflow-y-auto pb-4" id="sidebar-nav-container">
+                <!-- GYÖKÉR (ROOT) ELEM -->
+                <div id="sidebar-root-item"
+                    class="flex items-center gap-1.5 px-2 py-2 rounded-lg transition-colors group cursor-pointer bg-gray-800 text-white"
+                    onclick="navigateToGlobal('root', 'Saját meghajtó')">
+                    <div onclick="toggleSidebarFolder(event, 'root')" id="root-chevron"
+                        class="w-6 h-6 flex items-center justify-center rounded-md hover:bg-gray-600 cursor-pointer transition-all rotate-90 opacity-100 text-mixademy-500 flex-shrink-0">
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    </div>
+                    <i class="fa-solid fa-hard-drive w-4 text-center text-mixademy-500 flex-shrink-0"></i>
+                    <span id="workspace-name-display" class="truncate text-sm font-semibold flex-1">Meghajtó</span>
+                </div>
+                <!-- DINAMIKUS ALMAPPÁK ÉS FÁJLOK IDE KERÜLNEK -->
+                <div id="sidebar-tree-container" class="ml-4 pl-2 border-l border-gray-700/50 block mt-1"></div>
             </nav>
-            <div class="p-4 border-t border-gray-700">
+
+            <div class="p-4 border-t border-gray-700 flex-shrink-0">
                 <button id="btn-back-to-event"
                     class="hidden w-full flex items-center justify-center gap-2 text-mixademy-500 border border-mixademy-500 hover:bg-mixademy-500 hover:text-white px-3 py-2.5 rounded-lg transition-all mb-3 text-sm font-bold">
                     <i class="fa-solid fa-arrow-left"></i> Vissza az Eventbe
@@ -205,10 +216,9 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 flex flex-col h-screen overflow-hidden w-full">
+        <main class="flex-1 flex flex-col h-screen overflow-hidden w-full relative">
             <header class="h-16 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-4 sm:px-6">
                 <div class="flex items-center gap-3 sm:gap-4">
-                    <!-- Hamburger Menu (Mobile) -->
                     <button class="md:hidden text-gray-400 hover:text-white" onclick="toggleSidebar()">
                         <i class="fa-solid fa-bars text-xl"></i>
                     </button>
@@ -227,7 +237,6 @@
                 </div>
             </header>
 
-            <!-- Files Area -->
             <div class="flex-1 overflow-y-auto p-4 sm:p-6 relative" id="drive-content"></div>
         </main>
     </div>
@@ -244,11 +253,37 @@
         </div>
     </div>
 
+    <!-- VIEWER MODAL -->
+    <div id="viewer-modal"
+        class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-md z-[60] flex items-center justify-center p-4 sm:p-8 transition-opacity duration-300">
+        <button onclick="window.closeViewer()"
+            class="absolute top-4 right-4 sm:top-6 sm:right-6 text-gray-400 hover:text-white bg-gray-800/80 hover:bg-red-500/80 w-10 h-10 rounded-full flex items-center justify-center text-xl transition transform hover:scale-110 z-[70] shadow-xl">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div id="viewer-content"
+            class="w-full h-full max-w-6xl max-h-full flex items-center justify-center relative overflow-hidden"></div>
+        <div id="viewer-title"
+            class="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-white font-medium bg-gray-900/80 border border-gray-700 px-4 py-2 rounded-lg shadow-lg text-sm truncate max-w-[90%] pointer-events-none z-[70]">
+            Filenév
+        </div>
+
+        <div id="zoom-controls"
+            class="hidden absolute bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-900/90 border border-gray-700 rounded-lg flex gap-1 p-1 z-[70] shadow-2xl backdrop-blur-sm">
+            <button onclick="window.adjustZoom(-0.25)"
+                class="text-white hover:text-mixademy-500 w-10 h-10 flex items-center justify-center rounded transition bg-gray-800 hover:bg-gray-700"><i
+                    class="fa-solid fa-minus"></i></button>
+            <button onclick="window.resetZoom()"
+                class="text-white hover:text-mixademy-500 w-10 h-10 flex items-center justify-center rounded transition bg-gray-800 hover:bg-gray-700"><i
+                    class="fa-solid fa-rotate-left"></i></button>
+            <button onclick="window.adjustZoom(0.25)"
+                class="text-white hover:text-mixademy-500 w-10 h-10 flex items-center justify-center rounded transition bg-gray-800 hover:bg-gray-700"><i
+                    class="fa-solid fa-plus"></i></button>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, doc, getDoc, collection, addDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-        // Törölve a Storage importok, mivel már Base64 alapú adatbázis feltöltést használunk.
 
         const firebaseConfig = {
             apiKey: "AIzaSyD9p3wAII0V0uAKpLwsPSqDOJTZFjJlQQU",
@@ -268,6 +303,11 @@
         let folderHistory = [];
         let driveDb = { files: [] };
         let unsubscribeDrive = null;
+
+        let expandedFolders = new Set(['root']); // Nyitott mappák nyilvántartása
+
+        // --- ZOOM VÁLTOZÓK ---
+        let vZoom = 1; let vTx = 0; let vTy = 0; let vIsDragging = false; let vStartX = 0; let vStartY = 0;
 
         window.toggleSidebar = function () {
             const sidebar = document.getElementById('drive-sidebar');
@@ -331,6 +371,7 @@
             localStorage.removeItem('mixademy_currentUser'); localStorage.removeItem('mixademy_workspace');
             if (unsubscribeDrive) unsubscribeDrive();
             currentUser = null; currentWorkspaceId = null; currentFolderId = 'root'; driveDb = { files: [] };
+            expandedFolders = new Set(['root']);
             document.getElementById('app-screen').classList.add('hidden'); document.getElementById('login-screen').classList.remove('hidden'); document.getElementById('login-password').value = '';
         }
 
@@ -346,13 +387,16 @@
         function startCloudListener() {
             if (unsubscribeDrive) unsubscribeDrive();
             unsubscribeDrive = onSnapshot(collection(dbFirestore, "workspaces", currentWorkspaceId, "drive_files"), (snapshot) => {
-                driveDb.files = []; snapshot.forEach((doc) => { driveDb.files.push({ id: doc.id, ...doc.data() }); }); renderDrive();
+                driveDb.files = []; snapshot.forEach((doc) => { driveDb.files.push({ id: doc.id, ...doc.data() }); });
+                renderDrive();
             });
         }
 
         function navigateTo(folderId, folderName = 'Saját meghajtó') {
             if (folderId !== 'root') { folderHistory.push(currentFolderId); } else { folderHistory = []; }
-            currentFolderId = folderId; document.getElementById('current-path-display').innerText = folderName; renderDrive();
+            currentFolderId = folderId; document.getElementById('current-path-display').innerText = folderName;
+            if (folderId !== 'root') expandedFolders.add(folderId); // Automatikusan kinyitja az oldalsó fában is
+            renderDrive();
         }
 
         function navigateBack() {
@@ -360,7 +404,8 @@
                 currentFolderId = folderHistory.pop();
                 let folderName = 'Saját meghajtó';
                 if (currentFolderId !== 'root') { const folder = driveDb.files.find(f => f.id === currentFolderId); if (folder) folderName = folder.name; }
-                document.getElementById('current-path-display').innerText = folderName; renderDrive();
+                document.getElementById('current-path-display').innerText = folderName;
+                renderDrive();
             }
         }
 
@@ -370,89 +415,182 @@
                 await addDoc(collection(dbFirestore, "workspaces", currentWorkspaceId, "drive_files"), {
                     name: folderName.trim(), type: 'folder', parentId: currentFolderId, createdAt: new Date().toISOString(), owner: currentUser.username
                 });
+                expandedFolders.add(currentFolderId); // Szülőt azonnal nyissuk ki, hogy látszódjon az új
             }
         }
 
-        // --- BASE64 FÁJLFELTÖLTÉS DIRECT FIRESTORE-BA (Storage elkerüléséhez) ---
         async function handleFileUpload(event) {
             const files = event.target.files;
             if (files.length === 0) return;
-
             const progressContainer = document.getElementById('upload-progress-container');
             const progressFill = document.getElementById('upload-progress-fill');
             const progressText = document.getElementById('upload-percentage');
             const statusText = document.getElementById('upload-status-text');
-
             progressContainer.style.display = 'block';
 
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 statusText.innerText = `Feldolgozás: ${file.name} (${i + 1}/${files.length})`;
-                progressFill.style.width = '50%';
-                progressText.innerText = '50%';
-
+                progressFill.style.width = '50%'; progressText.innerText = '50%';
                 try {
-                    // Fájl olvasása Base64 formátumba
                     const base64Data = await new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onload = () => resolve(reader.result);
-                        reader.onerror = error => reject(error);
-                        reader.readAsDataURL(file);
+                        const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error); reader.readAsDataURL(file);
                     });
-
-                    progressFill.style.width = '80%';
-                    progressText.innerText = '80%';
-
-                    // Mentés közvetlenül a Firestore adatbázisba
+                    progressFill.style.width = '80%'; progressText.innerText = '80%';
                     await addDoc(collection(dbFirestore, "workspaces", currentWorkspaceId, "drive_files"), {
-                        name: file.name,
-                        type: 'file',
-                        mimeType: file.type,
-                        size: file.size,
-                        url: base64Data, // Base64 adat URL
-                        parentId: currentFolderId,
-                        createdAt: new Date().toISOString(),
-                        owner: currentUser.username
+                        name: file.name, type: 'file', mimeType: file.type || (file.name.endsWith('.txt') ? 'text/plain' : 'application/octet-stream'),
+                        size: file.size, url: base64Data, parentId: currentFolderId, createdAt: new Date().toISOString(), owner: currentUser.username
                     });
-
-                    progressFill.style.width = '100%';
-                    progressText.innerText = '100%';
-                } catch (error) {
-                    console.error("Feltöltési hiba:", error);
-                    alert(`Hiba történt a(z) ${file.name} feldolgozása során.`);
-                    break;
-                }
+                    progressFill.style.width = '100%'; progressText.innerText = '100%';
+                    expandedFolders.add(currentFolderId);
+                } catch (error) { console.error(error); alert(`Hiba történt a(z) ${file.name} feldolgozása során.`); break; }
             }
-
-            event.target.value = '';
-            setTimeout(() => { progressContainer.style.display = 'none'; }, 1000);
+            event.target.value = ''; setTimeout(() => { progressContainer.style.display = 'none'; }, 1000);
         }
 
-        // Törlés módosítása Base64-hez
         window.deleteItem = async function (id, type) {
             if (!confirm(`Biztosan törölni szeretnéd?`)) return;
             const item = driveDb.files.find(f => f.id === id); if (!item) return;
 
             if (type === 'folder') {
                 const children = driveDb.files.filter(f => f.parentId === id);
-                for (const child of children) {
-                    await deleteDoc(doc(dbFirestore, "workspaces", currentWorkspaceId, "drive_files", child.id));
-                }
+                for (const child of children) { await deleteDoc(doc(dbFirestore, "workspaces", currentWorkspaceId, "drive_files", child.id)); }
             }
             await deleteDoc(doc(dbFirestore, "workspaces", currentWorkspaceId, "drive_files", id));
         }
 
-        // --- VALÓDI LETÖLTÉS BASE64 URL-BŐL ---
         window.downloadFile = function (id) {
             const file = driveDb.files.find(f => f.id === id);
             if (file && file.url) {
-                const a = document.createElement('a');
-                a.href = file.url;
-                a.download = file.name;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
+                const a = document.createElement('a'); a.href = file.url; a.download = file.name; document.body.appendChild(a); a.click(); document.body.removeChild(a);
             }
+        }
+
+        // --- OLDALSÓ FA-MENÜ (TREE) LOGIKA ---
+        window.toggleSidebarFolder = function (e, id) {
+            e.stopPropagation(); // Ne navigáljon be, csak nyisson le
+            if (expandedFolders.has(id)) { expandedFolders.delete(id); } else { expandedFolders.add(id); }
+            renderSidebar();
+        };
+
+        function renderSidebar() {
+            const treeContainer = document.getElementById('sidebar-tree-container');
+            const rootChevron = document.getElementById('root-chevron');
+            const rootItem = document.getElementById('sidebar-root-item');
+            if (!treeContainer) return;
+
+            // Gyökér (Meghajtó) kijelölése ha épp ott vagyunk
+            if (currentFolderId === 'root') {
+                rootItem.classList.add('bg-gray-800', 'text-white');
+                rootItem.classList.remove('text-gray-300', 'hover:bg-gray-800');
+            } else {
+                rootItem.classList.remove('bg-gray-800', 'text-white');
+                rootItem.classList.add('text-gray-300', 'hover:bg-gray-800');
+            }
+
+            if (expandedFolders.has('root')) {
+                rootChevron.classList.add('rotate-90', 'text-mixademy-500', 'opacity-100');
+                rootChevron.classList.remove('text-gray-400', 'md:opacity-0');
+                treeContainer.classList.remove('hidden');
+                treeContainer.innerHTML = buildTreeHtml('root', 0);
+            } else {
+                rootChevron.classList.remove('rotate-90', 'text-mixademy-500', 'opacity-100');
+                rootChevron.classList.add('text-gray-400', 'md:opacity-0');
+                treeContainer.classList.add('hidden');
+                treeContainer.innerHTML = '';
+            }
+        }
+
+        function buildTreeHtml(parentId, level) {
+            const items = driveDb.files.filter(f => f.parentId === parentId);
+            // Rendezés: Mappák felül, fájlok alul ABC sorrendben
+            items.sort((a, b) => {
+                if (a.type === b.type) return a.name.localeCompare(b.name);
+                return a.type === 'folder' ? -1 : 1;
+            });
+
+            if (items.length === 0) return '';
+
+            let html = `<ul class="${level > 0 ? 'ml-3 pl-2 border-l border-gray-700/50 mt-1' : 'space-y-0.5 mt-1'}">`;
+
+            items.forEach(item => {
+                const isFolder = item.type === 'folder';
+                const isExpanded = expandedFolders.has(item.id);
+                const isCurrent = currentFolderId === item.id;
+
+                let iconHtml = isFolder ? `<i class="fa-solid fa-folder text-mixademy-500 w-4 text-center text-sm"></i>` : `<span class="w-4 text-center text-[10px] sm:text-[11px]">${getFileIcon(item.mimeType)}</span>`;
+
+                // A lenyitó nyíl asztali gépen csak egér rávitelre látszik, mobilon mindig (hogy meg lehessen nyomni)
+                let chevronClass = isExpanded
+                    ? "rotate-90 opacity-100 text-mixademy-500"
+                    : "opacity-100 md:opacity-0 group-hover:opacity-100 text-gray-500";
+
+                let chevronHtml = isFolder
+                    ? `<div onclick="toggleSidebarFolder(event, '${item.id}')" class="w-5 h-5 flex items-center justify-center rounded hover:bg-gray-600 cursor-pointer transition-all ${chevronClass} flex-shrink-0"><i class="fa-solid fa-chevron-right text-[10px]"></i></div>`
+                    : `<div class="w-5 h-5 flex-shrink-0"></div>`; // Üres hely, hogy a fájlok egy vonalban legyenek
+
+                const activeClass = isCurrent && isFolder ? 'bg-gray-800 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200';
+
+                html += `<li>
+                    <div class="flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-colors cursor-pointer group ${activeClass}" onclick="${isFolder ? `navigateToGlobal('${item.id}', '${item.name.replace(/'/g, "\\'")}')` : `viewFile('${item.id}')`}">
+                        ${chevronHtml}
+                        ${iconHtml}
+                        <span class="truncate text-xs font-medium flex-1 pt-0.5">${item.name}</span>
+                    </div>
+                `;
+
+                if (isFolder && isExpanded) {
+                    html += buildTreeHtml(item.id, level + 1);
+                }
+
+                html += `</li>`;
+            });
+
+            html += `</ul>`;
+            return html;
+        }
+
+        // --- VIEWER ÉS ZOOM LOGIKA ---
+        window.adjustZoom = function (delta) { vZoom += delta; if (vZoom < 0.2) vZoom = 0.2; if (vZoom > 10) vZoom = 10; window.applyZoom(); }
+        window.resetZoom = function () { vZoom = 1; vTx = 0; vTy = 0; window.applyZoom(); }
+        window.applyZoom = function () { const img = document.getElementById('viewed-image'); if (img) { img.style.transform = `translate(${vTx}px, ${vTy}px) scale(${vZoom})`; } }
+
+        window.closeViewer = function () {
+            document.getElementById('viewer-modal').classList.add('hidden');
+            document.getElementById('viewer-content').innerHTML = '';
+            document.getElementById('zoom-controls').classList.add('hidden');
+            vIsDragging = false;
+        }
+
+        window.addEventListener('mousemove', (e) => { if (!vIsDragging) return; vTx = e.clientX - vStartX; vTy = e.clientY - vStartY; window.applyZoom(); });
+        window.addEventListener('mouseup', () => { if (vIsDragging) { vIsDragging = false; const img = document.getElementById('viewed-image'); if (img) { img.classList.replace('cursor-grabbing', 'cursor-grab'); img.classList.add('transition-transform', 'duration-100'); } } });
+        window.addEventListener('touchmove', (e) => { if (!vIsDragging) return; if (e.touches.length === 1 && document.getElementById('viewed-image')) { e.preventDefault(); vTx = e.touches[0].clientX - vStartX; vTy = e.touches[0].clientY - vStartY; window.applyZoom(); } }, { passive: false });
+        window.addEventListener('touchend', () => { if (vIsDragging) { vIsDragging = false; const img = document.getElementById('viewed-image'); if (img) img.classList.add('transition-transform', 'duration-100'); } });
+
+        window.viewFile = async function (id) {
+            const file = driveDb.files.find(f => f.id === id); if (!file || !file.url) return;
+            const modal = document.getElementById('viewer-modal'); const content = document.getElementById('viewer-content');
+
+            document.getElementById('viewer-title').innerText = file.name;
+            document.getElementById('zoom-controls').classList.add('hidden');
+            content.innerHTML = '<div class="loader !w-12 !h-12 !border-t-mixademy-500 !border-gray-700 !block"></div>';
+            modal.classList.remove('hidden');
+
+            try {
+                if (file.mimeType.includes('image')) {
+                    document.getElementById('zoom-controls').classList.remove('hidden'); window.resetZoom();
+                    content.innerHTML = `<img id="viewed-image" src="${file.url}" draggable="false" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl cursor-grab transition-transform duration-100" style="transform: translate(0px, 0px) scale(1);">`;
+                    setTimeout(() => {
+                        const img = document.getElementById('viewed-image'); if (!img) return;
+                        img.addEventListener('wheel', (e) => { e.preventDefault(); window.adjustZoom(e.deltaY < 0 ? 0.15 : -0.15); }, { passive: false });
+                        img.addEventListener('mousedown', (e) => { e.preventDefault(); vIsDragging = true; vStartX = e.clientX - vTx; vStartY = e.clientY - vTy; img.classList.replace('cursor-grab', 'cursor-grabbing'); img.classList.remove('transition-transform', 'duration-100'); });
+                        img.addEventListener('touchstart', (e) => { if (e.touches.length === 1) { vIsDragging = true; vStartX = e.touches[0].clientX - vTx; vStartY = e.touches[0].clientY - vTy; img.classList.remove('transition-transform', 'duration-100'); } }, { passive: false });
+                    }, 50);
+                } else if (file.mimeType.includes('text/') || file.name.endsWith('.txt') || file.name.endsWith('.html') || file.name.endsWith('.css') || file.name.endsWith('.js') || file.name.endsWith('.py')) {
+                    const res = await fetch(file.url); const text = await res.text(); const safeText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    content.innerHTML = `<div class="bg-gray-800 text-gray-200 p-4 sm:p-8 rounded-xl w-full h-full max-h-[85vh] overflow-y-auto whitespace-pre-wrap text-left font-mono text-xs sm:text-sm border border-gray-700 shadow-inner custom-scrollbar">${safeText}</div>`;
+                } else { window.closeViewer(); alert("Ezt a fájltípust jelenleg nem lehet megtekinteni a böngészőben. Kérlek használd a Letöltés gombot!"); }
+            } catch (err) { content.innerHTML = `<div class="text-red-500 font-bold bg-gray-900 p-6 rounded-lg">Hiba a fájl betöltésekor.</div>`; }
         }
 
         window.navigateToGlobal = function (id, name) { navigateTo(id, name); }
@@ -468,6 +606,7 @@
             if (mimeType.includes('pdf')) return '<i class="fa-solid fa-file-pdf text-red-500"></i>';
             if (mimeType.includes('audio')) return '<i class="fa-solid fa-music text-pink-500"></i>';
             if (mimeType.includes('video')) return '<i class="fa-solid fa-video text-purple-500"></i>';
+            if (mimeType.includes('text/')) return '<i class="fa-solid fa-file-code text-green-400"></i>';
             if (mimeType.includes('zip') || mimeType.includes('rar')) return '<i class="fa-solid fa-file-zipper text-yellow-500"></i>';
             return '<i class="fa-solid fa-file-lines text-gray-400"></i>';
         }
@@ -477,7 +616,7 @@
             if (currentFolderId === 'root') { backBtn.classList.add('hidden'); } else { backBtn.classList.remove('hidden'); }
 
             const items = driveDb.files.filter(f => f.parentId === currentFolderId);
-            if (items.length === 0) { contentArea.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-500"><i class="fa-solid fa-folder-open text-5xl sm:text-6xl mb-4 text-gray-700"></i><h3 class="text-lg sm:text-xl font-medium text-gray-400">Ez a mappa üres</h3></div>`; return; }
+            if (items.length === 0) { contentArea.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-500"><i class="fa-solid fa-folder-open text-5xl sm:text-6xl mb-4 text-gray-700"></i><h3 class="text-lg sm:text-xl font-medium text-gray-400">Ez a mappa üres</h3></div>`; renderSidebar(); return; }
 
             const folders = items.filter(i => i.type === 'folder'); const files = items.filter(i => i.type === 'file'); let html = '';
 
@@ -485,7 +624,7 @@
                 html += `<h2 class="text-xs sm:text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Mappák</h2><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">`;
                 folders.forEach(folder => {
                     html += `<div class="file-card bg-gray-800 border border-gray-700 rounded-xl p-3 sm:p-4 flex items-center justify-between cursor-pointer transition-all group">
-                                <div class="flex items-center gap-3 w-full overflow-hidden" onclick="navigateToGlobal('${folder.id}', '${folder.name}')">
+                                <div class="flex items-center gap-3 w-full overflow-hidden" onclick="navigateToGlobal('${folder.id}', '${folder.name.replace(/'/g, "\\'")}')">
                                     <i class="fa-solid fa-folder text-mixademy-500 text-xl sm:text-2xl flex-shrink-0"></i><span class="font-medium truncate text-sm sm:text-base">${folder.name}</span>
                                 </div>
                                 <button onclick="deleteItem('${folder.id}', 'folder')" class="text-gray-500 hover:text-red-500 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity p-2"><i class="fa-solid fa-trash"></i></button>
@@ -498,9 +637,10 @@
                 files.forEach(file => {
                     html += `<div class="file-card bg-gray-800 border border-gray-700 rounded-xl overflow-hidden flex flex-col group relative">
                                 <div class="h-24 sm:h-32 bg-gray-900 flex items-center justify-center text-4xl sm:text-5xl">${getFileIcon(file.mimeType)}</div>
-                                <div class="absolute inset-0 bg-gray-900/80 flex items-center justify-center gap-2 sm:gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button onclick="downloadFile('${file.id}')" title="Letöltés" class="bg-blue-500 hover:bg-blue-600 text-white w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"><i class="fa-solid fa-download text-sm sm:text-base"></i></button>
-                                    <button onclick="deleteItem('${file.id}', 'file')" title="Törlés" class="bg-red-500 hover:bg-red-600 text-white w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"><i class="fa-solid fa-trash text-sm sm:text-base"></i></button>
+                                <div class="absolute inset-0 bg-gray-900/80 flex items-center justify-center gap-1 sm:gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button onclick="viewFile('${file.id}')" title="Megtekintés" class="bg-mixademy-500 hover:bg-mixademy-600 text-white w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"><i class="fa-solid fa-eye text-xs sm:text-base"></i></button>
+                                    <button onclick="downloadFile('${file.id}')" title="Letöltés" class="bg-blue-500 hover:bg-blue-600 text-white w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"><i class="fa-solid fa-download text-xs sm:text-base"></i></button>
+                                    <button onclick="deleteItem('${file.id}', 'file')" title="Törlés" class="bg-red-500 hover:bg-red-600 text-white w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"><i class="fa-solid fa-trash text-xs sm:text-base"></i></button>
                                 </div>
                                 <div class="p-2 sm:p-3 border-t border-gray-700 bg-gray-800">
                                     <p class="text-xs sm:text-sm font-medium truncate" title="${file.name}">${file.name}</p>
@@ -508,22 +648,18 @@
                                 </div>
                             </div>`;
                 }); html += `</div>`;
-            } contentArea.innerHTML = html;
+            }
+
+            contentArea.innerHTML = html;
+            renderSidebar(); // Mindig frissítse a bal oldali menüt, ha a tartalmi rész is frissül
         }
 
         document.getElementById('btn-login').addEventListener('click', handleLogin);
         document.getElementById('btn-logout').addEventListener('click', handleLogout);
-        document.getElementById('btn-upload-trigger').addEventListener('click', () => {
-            if (window.innerWidth < 768) toggleSidebar();
-            document.getElementById('file-upload').click();
-        });
+        document.getElementById('btn-upload-trigger').addEventListener('click', () => { if (window.innerWidth < 768) toggleSidebar(); document.getElementById('file-upload').click(); });
         document.getElementById('file-upload').addEventListener('change', handleFileUpload);
-        document.getElementById('btn-new-folder').addEventListener('click', () => {
-            if (window.innerWidth < 768) toggleSidebar();
-            createNewFolder();
-        });
+        document.getElementById('btn-new-folder').addEventListener('click', () => { if (window.innerWidth < 768) toggleSidebar(); createNewFolder(); });
         document.getElementById('back-btn').addEventListener('click', navigateBack);
-        document.getElementById('btn-nav-root').addEventListener('click', () => navigateTo('root'));
 
         window.onload = init;
     </script>
